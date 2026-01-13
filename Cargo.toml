@@ -1,0 +1,61 @@
+[package]
+name = "planesight-chat"
+version = "0.1.0"
+edition = "2021"
+authors = ["PlaneSight Team"]
+description = "Secure P2P chat using the infinite monkey principle"
+
+[dependencies]
+# UI Framework
+dioxus = "0.4"
+dioxus-desktop = { version = "0.4", optional = true }
+dioxus-mobile = { version = "0.4", optional = true }
+dioxus-web = { version = "0.4", optional = true }
+
+# P2P Networking
+libp2p = { version = "0.54", features = ["tcp", "noise", "yamux", "gossipsub", "mdns", "kad", "identify", "ping", "tokio"] }
+libp2p-quic = "0.11"
+
+# Cryptography
+rand = "0.8"
+sha2 = "0.10"
+aes-gcm = "0.10"
+
+# Async Runtime
+tokio = { version = "1.35", features = ["full"] }
+futures = "0.3"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Nostr for signaling
+nostr-sdk = "0.31"
+
+# Tor integration (for hidden mode)
+arti-client = { version = "0.22", optional = true }
+tor-rtcompat = { version = "0.22", optional = true }
+
+# Utilities
+anyhow = "1.0"
+thiserror = "1.0"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+async-trait = "0.1"
+
+[features]
+default = ["mobile"]
+desktop = ["dioxus-desktop"]
+mobile = ["dioxus-mobile"]
+web = ["dioxus-web"]
+tor = ["arti-client", "tor-rtcompat"]
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+strip = true
+
+[[bin]]
+name = "planesight-chat"
+path = "src/main.rs"

@@ -1,0 +1,19 @@
+[package.metadata.android]
+package = "com.planesight.chat"
+build_targets = ["aarch64-linux-android", "armv7-linux-androideabi", "x86_64-linux-android", "i686-linux-android"]
+
+[package.metadata.android.application]
+label = "PlaneSight Chat"
+icon = "@mipmap/ic_launcher"
+theme = "@android:style/Theme.DeviceDefault.NoActionBar"
+
+[[package.metadata.android.application.activity]]
+name = "MainActivity"
+config_changes = "orientation|keyboardHidden|screenSize"
+launch_mode = "singleTop"
+orientation = "portrait"
+
+[package.metadata.android.sdk]
+min_sdk_version = 24
+target_sdk_version = 33
+compile_sdk_version = 33
