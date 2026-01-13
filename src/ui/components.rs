@@ -3,7 +3,6 @@
 use dioxus::prelude::*;
 
 /// Message component
-#[component]
 pub fn Message<'a>(
     cx: Scope<'a>,
     sender: &'a str,
@@ -27,7 +26,6 @@ pub fn Message<'a>(
 }
 
 /// Peer list component
-#[component]
 pub fn PeerList<'a>(cx: Scope<'a>, peers: &'a Vec<String>) -> Element {
     cx.render(rsx! {
         div {

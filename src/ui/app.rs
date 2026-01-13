@@ -3,7 +3,6 @@ use dioxus::prelude::*;
 use crate::network::NetworkMode;
 
 /// Main application component
-#[component]
 pub fn App(cx: Scope) -> Element {
     let network_mode = use_state(cx, || None::<NetworkMode>);
     let setup_complete = use_state(cx, || false);
@@ -19,14 +18,13 @@ pub fn App(cx: Scope) -> Element {
                     setup_complete.set(true);
                 }}}
             } else {
-                rsx! { ChatScreen { mode: network_mode.get().unwrap_or(NetworkMode::Standard) }}
+                rsx! { ChatScreen { mode: *network_mode.get().unwrap_or(&NetworkMode::Standard) }}
             }
         }
     })
 }
 
 /// Setup screen for first-time mode selection
-#[component]
 fn SetupScreen<'a>(cx: Scope<'a>, on_select: EventHandler<'a, NetworkMode>) -> Element {
     cx.render(rsx! {
         div {
@@ -79,7 +77,6 @@ fn SetupScreen<'a>(cx: Scope<'a>, on_select: EventHandler<'a, NetworkMode>) -> E
 }
 
 /// Main chat screen
-#[component]
 fn ChatScreen(cx: Scope, mode: NetworkMode) -> Element {
     let messages = use_state(cx, Vec::<String>::new);
     let input_text = use_state(cx, String::new);
@@ -130,8 +127,8 @@ fn ChatScreen(cx: Scope, mode: NetworkMode) -> Element {
                     placeholder: "Type your message...",
                     value: "{input_text}",
                     oninput: move |evt| input_text.set(evt.value.clone()),
-                    onkeydown: move |evt| {
-                        if evt.key() == Key::Enter && !input_text.is_empty() {
+                    onkeypress: move |evt| {
+                        if evt.key() == "Enter" && !input_text.is_empty() {
                             let msg = format!("You: {}", input_text.get());
                             messages.modify(|msgs| {
                                 let mut new_msgs = msgs.clone();

@@ -33,8 +33,9 @@ impl MonkeyEngine {
     pub fn generate_text(&self, coords: &Coordinates) -> String {
         let mut rng = StdRng::seed_from_u64(coords.seed);
         
-        // Skip to the start position
-        for _ in 0..coords.start {
+        // Skip to the start position (using modulo to keep it manageable)
+        let skip_amount = (coords.start % 10000) as usize;
+        for _ in 0..skip_amount {
             rng.gen_range(0..self.charset.len());
         }
         

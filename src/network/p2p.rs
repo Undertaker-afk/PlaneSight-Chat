@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 use futures::StreamExt;
 use libp2p::{
-    gossipsub, identify, kad, mdns, noise, ping,
+    gossipsub, identify, mdns, noise, ping,
     swarm::{NetworkBehaviour, SwarmEvent},
     tcp, yamux, PeerId, Swarm,
 };
@@ -17,8 +17,7 @@ use super::{ChatMessage, NetworkEvent};
 #[derive(NetworkBehaviour)]
 pub struct P2PBehaviour {
     pub gossipsub: gossipsub::Behaviour,
-    pub mdns: mdns::tokio::Behaviour,
-    pub kad: kad::Behaviour<kad::store::MemoryStore>,
+    pub mdns: mdns::Behaviour,
     pub identify: identify::Behaviour,
     pub ping: ping::Behaviour,
 }
@@ -50,7 +49,6 @@ impl P2PNetwork {
             .build()
             .context("Invalid gossipsub config")?;
 
-        let kad_config = kad::Config::default();
         let chat_topic_clone = chat_topic.clone();
 
         // Create the swarm
@@ -61,33 +59,30 @@ impl P2PNetwork {
                 noise::Config::new,
                 yamux::Config::default,
             )?
-            .with_behaviour(move |key| {
+            .with_behaviour(move |key| -> Result<P2PBehaviour, std::io::Error> {
                 // Create behaviours with the generated identity
                 let local_peer_id = PeerId::from(key.public());
                 
                 let mut gossipsub_new = gossipsub::Behaviour::new(
                     gossipsub::MessageAuthenticity::Signed(key.clone()),
                     gossipsub_config.clone(),
-                ).expect("Valid config");
-                gossipsub_new.subscribe(&chat_topic_clone).expect("Subscribe");
+                ).map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
+                gossipsub_new.subscribe(&chat_topic_clone)
+                    .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
                 
-                let mdns_new = mdns::tokio::Behaviour::new(mdns::Config::default(), local_peer_id)
-                    .expect("mdns");
-                let store = kad::store::MemoryStore::new(local_peer_id);
-                let kad_new = kad::Behaviour::with_config(local_peer_id, store, kad_config.clone());
+                let mdns_new = mdns::Behaviour::new(mdns::Config::default(), local_peer_id)?;
                 let identify_new = identify::Behaviour::new(identify::Config::new(
                     "/planesight/1.0.0".to_string(),
                     key.public(),
                 ));
                 let ping_new = ping::Behaviour::new(ping::Config::new());
                 
-                P2PBehaviour {
+                Ok(P2PBehaviour {
                     gossipsub: gossipsub_new,
                     mdns: mdns_new,
-                    kad: kad_new,
                     identify: identify_new,
                     ping: ping_new,
-                }
+                })
             })?
             .with_swarm_config(|c| c.with_idle_connection_timeout(Duration::from_secs(60)))
             .build();
