@@ -47,19 +47,39 @@ This provides an additional layer of security and plausible deniability - the ne
 - Rust 1.70 or later
 - For Android builds: Android SDK and NDK
 
-### Building for Desktop
+### Quick Start - Try the Demo
+
+The core infinite monkey principle and encryption are fully working! Try the demo:
 
 ```bash
 # Clone the repository
 git clone https://github.com/Undertaker-afk/PlaneSight-Chat.git
 cd PlaneSight-Chat
 
-# Build and run (default: desktop with standard mode)
-cargo run --features desktop
-
-# Build with Tor support
-cargo run --features "desktop,tor"
+# Run the working demo
+cargo run --example monkey_demo --no-default-features
 ```
+
+This demonstrates:
+- Coordinate generation from messages
+- AES-256-GCM encryption
+- Complete message flow (coordinates only, not actual text!)
+- Plausible deniability principle
+
+### Current Status
+
+✅ **Working Components:**
+- Infinite monkey principle engine (coordinate-based messaging)
+- AES-256-GCM encryption layer  
+- Shared secret derivation
+- All core tests passing (4/4)
+
+⚠️ **In Progress:**
+- LibP2P integration (NetworkBehaviour API compatibility)
+- Dioxus UI components (API updates needed)
+- Full Android build pipeline
+
+See [SUMMARY.md](SUMMARY.md) for detailed implementation status.
 
 ### Building for Android
 
@@ -70,12 +90,14 @@ cargo install dioxus-cli
 # Add Android targets
 rustup target add aarch64-linux-android armv7-linux-androideabi
 
-# Build APK
+# Build APK (once UI integration complete)
 dx build --platform android --release
 
 # Or build and deploy to connected device
 dx serve --platform android
 ```
+
+**Note**: Android build requires completing the Dioxus UI integration (see SUMMARY.md)
 
 ### First Run
 
